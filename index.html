@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work Café PWA | Control de Calidad</title>
+  <title>Work Café PWA | Control de Calidad y Pedidos</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,6 +18,7 @@
     .section-transition { animation: fadeIn 0.4s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .glass-card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 1.5rem; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
   </style>
 </head>
 <body class="overflow-hidden h-screen flex flex-col md:flex-row text-gray-800">
@@ -38,13 +39,17 @@
         <span class="material-symbols-rounded mr-3">science</span> Físico
       </button>
       <button onclick="showSection('trazabilidad')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-trazabilidad">
-        <span class="material-symbols-rounded mr-3">map</span> Trazabilidad
+        <span class="material-symbols-rounded mr-3">map</span> Origen
       </button>
       <button onclick="showSection('tostado')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-tostado">
         <span class="material-symbols-rounded mr-3">show_chart</span> Tueste
       </button>
       <button onclick="showSection('historia')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-historia">
-        <span class="material-symbols-rounded mr-3">menu_book</span> Origen
+        <span class="material-symbols-rounded mr-3">menu_book</span> Historia
+      </button>
+      <hr class="my-4 border-gray-200">
+      <button onclick="showSection('pedidos')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-bold" id="btn-pedidos">
+        <span class="material-symbols-rounded mr-3 text-red-600">shopping_cart</span> Pedidos
       </button>
     </nav>
   </aside>
@@ -91,6 +96,23 @@
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-blue-500 mb-2">water_drop</span><p class="text-3xl font-bold mt-2" id="ui-humedad">--%</p></div>
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-purple-500 mb-2">scale</span><p class="text-3xl font-bold mt-2" id="ui-densidad">-- <span class="text-lg">g/L</span></p></div>
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-orange-500 mb-2">bug_report</span><p class="text-xl font-bold mt-2" id="ui-defectos">--</p></div>
+         <div class="glass-card md:col-span-3">
+          <h4 class="text-sm text-gray-500 uppercase font-bold tracking-wider mb-4">Análisis de Mallas</h4>
+          <div class="flex justify-around items-end h-32">
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m17" class="bg-gray-800 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M17 <span id="ui-m17" class="text-xs font-normal">--%</span></p>
+            </div>
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m16" class="bg-gray-600 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M16 <span id="ui-m16" class="text-xs font-normal">--%</span></p>
+            </div>
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m15" class="bg-gray-400 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M15 <span id="ui-m15" class="text-xs font-normal">--%</span></p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="section-trazabilidad" class="hidden section-transition">
@@ -98,6 +120,7 @@
           <ul class="divide-y divide-gray-100">
             <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Productor</span><span class="font-bold text-right" id="ui-productor">--</span></li>
             <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Origen</span><span class="font-bold text-right" id="ui-origen">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-right" id="ui-region">--</span></li>
             <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Altitud</span><span class="font-bold text-right" id="ui-altitud">--</span></li>
             <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Variedad</span><span class="font-bold text-right" id="ui-variedad">--</span></li>
             <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Proceso</span><span class="font-bold text-right" id="ui-proceso">--</span></li>
@@ -125,14 +148,14 @@
       <section id="section-historia" class="hidden section-transition">
         <div class="glass-card overflow-hidden p-0">
           <div class="relative h-64 bg-gray-200">
-            <img id="img-finca" src="https://via.placeholder.com/800x400" alt="Finca" class="w-full h-full object-cover">
+            <img id="img-finca" src="" alt="Finca" class="w-full h-full object-cover bg-gray-300">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
               <h2 class="text-3xl font-bold text-white font-serif" id="ui-story-title">Historia del Origen</h2>
             </div>
           </div>
           <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
             <div class="md:w-1/3 flex justify-center md:justify-start">
-              <img id="img-productor" src="https://via.placeholder.com/300" alt="Productor" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover -mt-20 relative z-10">
+              <img id="img-productor" src="" alt="Productor" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover -mt-20 relative z-10 bg-gray-200">
             </div>
             <div class="md:w-2/3">
               <p id="ui-historia-texto" class="text-gray-700 leading-relaxed font-serif text-lg text-justify">Cargando historia...</p>
@@ -141,25 +164,72 @@
         </div>
       </section>
 
+      <section id="section-pedidos" class="hidden section-transition">
+        <div class="glass-card max-w-md mx-auto">
+          <div id="order-form-container">
+            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center">
+              <span class="material-symbols-rounded mr-2 text-red-600">local_shipping</span> 
+              Solicitar Café
+            </h3>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Sucursal</label>
+                <select id="form-sucursal" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none">
+                  <option value="">Seleccionar Sucursal...</option>
+                  <option value="Sucursal Centro">Sucursal Centro</option>
+                  <option value="Sucursal Norte">Sucursal Norte</option>
+                  <option value="Sucursal Vitacura">Sucursal Vitacura</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cantidad (Bolsas 1kg)</label>
+                <input type="number" id="form-cantidad" placeholder="Ej: 10" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">PIN de Seguridad</label>
+                <input type="password" id="form-pin" placeholder="****" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none">
+              </div>
+
+              <button onclick="enviarPedido()" id="btn-enviar-pedido" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-red-200 flex justify-center items-center">
+                Confirmar Pedido
+              </button>
+            </div>
+          </div>
+
+          <div id="order-success" class="hidden text-center py-8">
+            <span class="material-symbols-rounded text-6xl text-green-500 animate-bounce">check_circle</span>
+            <h3 class="text-2xl font-bold mt-4 text-gray-800">¡Pedido Enviado!</h3>
+            <p class="text-gray-500 mt-2">La tostaduría ha recibido tu solicitud.</p>
+            <button onclick="resetForm()" class="mt-6 text-red-600 font-bold">Hacer otro pedido</button>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
-  <nav class="md:hidden fixed bottom-0 w-full flex overflow-x-auto bg-white/90 backdrop-blur-lg border-t border-gray-200 pb-safe z-50 hide-scrollbar">
-    <div class="flex px-2 py-2 min-w-max space-x-2">
-      <button onclick="showSection('landing')" class="nav-item flex flex-col items-center p-2 text-gray-400 nav-active rounded-xl min-w-[70px]" id="btn-landing-mob"><span class="material-symbols-rounded">home</span><span class="text-[10px]">Inicio</span></button>
-      <button onclick="showSection('sensorial')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-sensorial-mob"><span class="material-symbols-rounded">local_cafe</span><span class="text-[10px]">Cata</span></button>
-      <button onclick="showSection('tostado')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-tostado-mob"><span class="material-symbols-rounded">show_chart</span><span class="text-[10px]">Tueste</span></button>
-      <button onclick="showSection('historia')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-historia-mob"><span class="material-symbols-rounded">menu_book</span><span class="text-[10px]">Origen</span></button>
+  <nav class="md:hidden fixed bottom-0 w-full flex overflow-x-auto bg-white/90 backdrop-blur-lg border-t border-gray-200 pb-safe z-50 hide-scrollbar shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+    <div class="flex px-2 py-2 min-w-max space-x-1">
+      <button onclick="showSection('landing')" class="nav-item flex flex-col items-center p-2 text-gray-400 nav-active rounded-xl min-w-[70px]" id="btn-landing-mob"><span class="material-symbols-rounded">home</span><span class="text-[10px] font-medium mt-1">Inicio</span></button>
+      <button onclick="showSection('sensorial')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-sensorial-mob"><span class="material-symbols-rounded">local_cafe</span><span class="text-[10px] font-medium mt-1">Cata</span></button>
+      <button onclick="showSection('fisico')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-fisico-mob"><span class="material-symbols-rounded">science</span><span class="text-[10px] font-medium mt-1">Físico</span></button>
+      <button onclick="showSection('trazabilidad')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-trazabilidad-mob"><span class="material-symbols-rounded">map</span><span class="text-[10px] font-medium mt-1">Origen</span></button>
+      <button onclick="showSection('tostado')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-tostado-mob"><span class="material-symbols-rounded">show_chart</span><span class="text-[10px] font-medium mt-1">Tueste</span></button>
+      <button onclick="showSection('historia')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-historia-mob"><span class="material-symbols-rounded">menu_book</span><span class="text-[10px] font-medium mt-1">Historia</span></button>
+      <button onclick="showSection('pedidos')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-pedidos-mob"><span class="material-symbols-rounded text-red-500">shopping_cart</span><span class="text-[10px] font-medium mt-1 text-red-500">Pedidos</span></button>
     </div>
   </nav>
 
-  <style> .hide-scrollbar::-webkit-scrollbar { display: none; } </style>
-
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec'; 
+    // --- VARIABLES GLOBALES ---
+    const APPS_SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI'; // <-- ¡Reemplaza esto!
     let radarChartInstance = null;
     let roastChartInstance = null;
 
+    // --- LÓGICA DE NAVEGACIÓN ---
     function showSection(sectionId) {
       document.querySelectorAll('.section-transition').forEach(s => s.classList.add('hidden'));
       document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active'); n.classList.add('text-gray-600', 'text-gray-400'); });
@@ -171,88 +241,128 @@
       if(btnDesk) { btnDesk.classList.add('nav-active'); btnDesk.classList.remove('text-gray-600'); }
       if(btnMob) { btnMob.classList.add('nav-active'); btnMob.classList.remove('text-gray-400'); }
       
-      const titles = { landing: 'Resumen', sensorial: 'Análisis Sensorial', fisico: 'Físico', trazabilidad: 'Trazabilidad', tostado: 'Parámetros de Tueste', historia: 'Nuestra Historia' };
+      const titles = { landing: 'Resumen', sensorial: 'Análisis Sensorial', fisico: 'Análisis Físico', trazabilidad: 'Trazabilidad', tostado: 'Parámetros de Tueste', historia: 'Nuestra Historia', pedidos: 'Generar Pedido' };
       document.getElementById('section-title').innerText = titles[sectionId];
     }
 
+    // --- INICIALIZACIÓN Y CARGA DE DATOS ---
     async function initApp() {
       try {
         const response = await fetch(APPS_SCRIPT_URL);
         const data = await response.json();
         if(data.error) throw new Error(data.error);
 
-        // Landing, Físico y Trazabilidad (Igual a V1)
+        // UI General
         document.getElementById('ui-lote').innerText = data.lote;
         document.getElementById('ui-fecha').innerText = data.fecha;
         document.getElementById('ui-sca').innerText = data.sca_total;
         
+        // Tags de Notas
         const notasDiv = document.getElementById('ui-notas-tags');
         notasDiv.innerHTML = '';
         data.review.notas.split(',').forEach(nota => {
           const span = document.createElement('span'); span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold'; span.innerText = nota.trim(); notasDiv.appendChild(span);
         });
+        document.getElementById('ui-resena').innerText = `"${data.review.texto}"`;
 
-        // Tueste
+        // UI Físico
+        document.getElementById('ui-humedad').innerText = data.fisico.humedad + '%';
+        document.getElementById('ui-densidad').innerText = data.fisico.densidad;
+        document.getElementById('ui-defectos').innerText = data.fisico.defectos;
+        document.getElementById('ui-m17').innerText = `(${data.fisico.malla17}%)`; document.getElementById('bar-m17').style.height = data.fisico.malla17 + '%';
+        document.getElementById('ui-m16').innerText = `(${data.fisico.malla16}%)`; document.getElementById('bar-m16').style.height = data.fisico.malla16 + '%';
+        document.getElementById('ui-m15').innerText = `(${data.fisico.malla15}%)`; document.getElementById('bar-m15').style.height = data.fisico.malla15 + '%';
+
+        // UI Trazabilidad
+        document.getElementById('ui-productor').innerText = data.trazabilidad.productor;
+        document.getElementById('ui-origen').innerText = data.trazabilidad.origen;
+        document.getElementById('ui-region').innerText = data.trazabilidad.region;
+        document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud;
+        document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad;
+        document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso;
+
+        // UI Tueste
         document.getElementById('ui-agtron').innerText = data.roasting.agtron;
         document.getElementById('ui-perfil').innerText = data.roasting.perfil;
         renderRoastChart(data.roasting.curva);
 
-        // Historia
+        // UI Historia
         document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad.productor}`;
-        document.getElementById('img-finca').src = data.historia.foto_finca || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800';
-        document.getElementById('img-productor').src = data.historia.foto_productor || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=300';
+        if(data.historia.foto_finca) document.getElementById('img-finca').src = data.historia.foto_finca;
+        if(data.historia.foto_productor) document.getElementById('img-productor').src = data.historia.foto_productor;
         document.getElementById('ui-historia-texto').innerText = data.historia.texto;
 
+        // Gráfica Radar
         renderRadarChart(data.sensorial);
-        document.getElementById('status-text').innerText = 'Sincronizado';
-        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full mr-2 bg-green-500';
 
-      } catch (error) { console.error(error); }
+        // Status
+        document.getElementById('status-text').innerText = 'Sincronizado';
+        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-green-500');
+        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-green-100');
+        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-green-700');
+
+      } catch (error) { 
+        console.error(error);
+        document.getElementById('status-text').innerText = 'Error de Conexión';
+        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-red-500');
+        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-red-100');
+        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-red-700');
+      }
     }
 
+    // --- RENDERIZADO DE GRÁFICOS ---
     function renderRadarChart(sensorialData) {
-      /* Mismo código de Chart.js Radar de V1 */
       const ctx = document.getElementById('radarChart').getContext('2d');
       if(radarChartInstance) radarChartInstance.destroy();
       radarChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
-    // NUEVO: Gráfica de Tueste (Líneas)
     function renderRoastChart(curvaString) {
       if(!curvaString) return;
       const ctx = document.getElementById('roastChart').getContext('2d');
       if(roastChartInstance) roastChartInstance.destroy();
-      
       const temps = curvaString.toString().split(',').map(n => parseFloat(n.trim()));
-      const labels = temps.map((_, i) => `${i}m`); // Eje X: 0m, 1m, 2m...
-
-      roastChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Temperatura (°C)',
-            data: temps,
-            borderColor: '#b45309', // amber-700
-            backgroundColor: 'rgba(180, 83, 9, 0.1)',
-            borderWidth: 3,
-            tension: 0.4, // Curva suave (Bezier)
-            fill: true,
-            pointBackgroundColor: '#b45309'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { title: { display: true, text: 'Temperatura °C' } },
-            x: { title: { display: true, text: 'Tiempo (Minutos)' } }
-          }
-        }
-      });
+      const labels = temps.map((_, i) => `${i}m`);
+      roastChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Temperatura (°C)', data: temps, borderColor: '#b45309', backgroundColor: 'rgba(180, 83, 9, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#b45309' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { title: { display: true, text: 'Temperatura °C' } }, x: { title: { display: true, text: 'Tiempo (Minutos)' } } } } });
     }
 
+    // --- SISTEMA DE PEDIDOS ---
+    async function enviarPedido() {
+      const btn = document.getElementById('btn-enviar-pedido');
+      const data = {
+        sucursal: document.getElementById('form-sucursal').value,
+        cantidad: document.getElementById('form-cantidad').value,
+        pin: document.getElementById('form-pin').value,
+        lote: document.getElementById('ui-lote').innerText,
+        comentarios: ""
+      };
+
+      if (!data.sucursal || !data.cantidad || !data.pin) {
+        alert("Por favor completa todos los campos"); return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin material-symbols-rounded mr-2">sync</span> Enviando...';
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+        const result = await response.json();
+        if (result.status === "success") {
+          document.getElementById('order-form-container').classList.add('hidden');
+          document.getElementById('order-success').classList.remove('hidden');
+        } else { alert("Error: " + result.message); }
+      } catch (error) { alert("Error de conexión con el servidor"); } 
+      finally { btn.disabled = false; btn.innerText = 'Confirmar Pedido'; }
+    }
+
+    function resetForm() {
+      document.getElementById('order-form-container').classList.remove('hidden');
+      document.getElementById('order-success').classList.add('hidden');
+      document.getElementById('form-cantidad').value = '';
+      document.getElementById('form-pin').value = '';
+    }
+
+    // Arrancar aplicación
     window.onload = initApp;
   </script>
 </body>
