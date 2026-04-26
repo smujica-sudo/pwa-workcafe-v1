@@ -320,4 +320,167 @@
         document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso;
 
         // UI Tueste
-        document.getElementById('ui-agtron').innerText = data.roasting.
+        document.getElementById('ui-agtron').innerText = data.roasting.agtron;
+        document.getElementById('ui-perfil').innerText = data.roasting.perfil;
+        renderRoastChart(data.roasting.curva);
+
+        // UI Historia
+        document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad.productor}`;
+        if(data.historia.foto_finca) document.getElementById('img-finca').src = data.historia.foto_finca;
+        if(data.historia.foto_productor) document.getElementById('img-productor').src = data.historia.foto_productor;
+        document.getElementById('ui-historia-texto').innerText = data.historia.texto;
+
+        // Gráfica Radar
+        renderRadarChart(data.sensorial);
+
+        // Cambiar Badge de Estado a Verde
+        document.getElementById('status-text').innerText = 'Sincronizado';
+        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-green-500');
+        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-green-100');
+        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-green-700');
+
+      } catch (error) { 
+        console.error(error);
+        document.getElementById('status-text').innerText = 'Error de Conexión';
+        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-red-500');
+        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-red-100');
+        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-red-700');
+      }
+    }
+
+    // ==========================================
+    // 4. LÓGICA DE GRÁFICOS (CHART.JS)
+    // ==========================================
+    function renderRadarChart(sensorialData) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if(radarChartInstance) radarChartInstance.destroy();
+      radarChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, ticks: { min: 6, max: 10, stepSize: 1, display: false } } } } });
+    }
+
+    function renderRoastChart(curvaString) {
+      if(!curvaString) return;
+      const ctx = document.getElementById('roastChart').getContext('2d');
+      if(roastChartInstance) roastChartInstance.destroy();
+      const temps = curvaString.toString().split(',').map(n => parseFloat(n.trim()));
+      const labels = temps.map((_, i) => `${i}m`);
+      roastChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Temperatura (°C)', data: temps, borderColor: '#b45309', backgroundColor: 'rgba(180, 83, 9, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#b45309' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { title: { display: true, text: 'Temperatura °C' } }, x: { title: { display: true, text: 'Tiempo (Minutos)' } } } } });
+    }
+
+    // ==========================================
+    // 5. SISTEMA DE PEDIDOS (LOGIN E HISTORIAL)
+    // ==========================================
+    function loginPedidos() {
+      const suc = document.getElementById('auth-sucursal').value;
+      const pin = document.getElementById('auth-pin').value;
+      
+      if(pin === MASTER_ADMIN_PIN || pin === "2026") {
+        currentUser = suc;
+        currentPin = pin;
+        document.getElementById('pedidos-auth').classList.add('hidden');
+        document.getElementById('pedidos-panel').classList.remove('hidden');
+        document.getElementById('panel-welcome').innerText = (pin === MASTER_ADMIN_PIN) ? "Panel Admin" : "Sucursal: " + suc;
+        document.getElementById('auth-pin').value = '';
+      } else {
+        alert("PIN Incorrecto");
+      }
+    }
+
+    function logoutPedidos() {
+      currentUser = null; currentPin = null;
+      document.getElementById('pedidos-auth').classList.remove('hidden');
+      document.getElementById('pedidos-panel').classList.add('hidden');
+    }
+
+    function tabPedidos(tab) {
+      document.getElementById('tab-nuevo').classList.toggle('hidden', tab !== 'nuevo');
+      document.getElementById('tab-historial').classList.toggle('hidden', tab !== 'historial');
+      
+      // Estilos de botones
+      if(tab === 'nuevo') {
+        document.getElementById('tab-btn-nuevo').classList.replace('text-gray-500', 'text-gray-800');
+        document.getElementById('tab-btn-nuevo').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('tab-btn-historial').classList.replace('text-gray-800', 'text-gray-500');
+        document.getElementById('tab-btn-historial').classList.remove('bg-white', 'shadow-sm');
+      } else {
+        document.getElementById('tab-btn-historial').classList.replace('text-gray-500', 'text-gray-800');
+        document.getElementById('tab-btn-historial').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('tab-btn-nuevo').classList.replace('text-gray-800', 'text-gray-500');
+        document.getElementById('tab-btn-nuevo').classList.remove('bg-white', 'shadow-sm');
+        cargarHistorial();
+      }
+    }
+
+    async function cargarHistorial() {
+      const container = document.getElementById('lista-pedidos');
+      container.innerHTML = '<p class="text-center text-gray-500 animate-pulse w-full col-span-full">Consultando base de datos...</p>';
+      
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=getOrders&sucursal=${encodeURIComponent(currentUser)}&pin=${currentPin}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        container.innerHTML = '';
+        if(data.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500 w-full col-span-full">No hay pedidos registrados.</p>';
+            return;
+        }
+
+        data.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'glass-card border-l-4 ' + (p.estado === 'Pendiente' ? 'border-yellow-400' : 'border-green-500');
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase">${p.fecha}</p>
+                <h4 class="font-bold text-gray-800 mt-1">${p.sucursal}</h4>
+                <p class="text-sm text-gray-600 mt-1"><span class="font-bold text-red-600">${p.cantidad}</span> Bolsas</p>
+                <p class="text-xs text-gray-400 mt-1">Lote: ${p.lote}</p>
+              </div>
+              <span class="status-badge ${p.estado === 'Pendiente' ? 'status-pendiente' : 'status-entregado'} mt-1">${p.estado}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch(e) { container.innerHTML = '<p class="text-center text-red-500 w-full col-span-full">Error al cargar historial</p>'; }
+    }
+
+    async function enviarPedido() {
+      const qty = document.getElementById('order-qty').value;
+      if(!qty || qty <= 0) return alert("Ingresa una cantidad válida.");
+      
+      const btn = document.getElementById('btn-send');
+      btn.disabled = true; 
+      btn.innerHTML = '<span class="animate-spin material-symbols-rounded mr-2">sync</span> Enviando...';
+
+      const pedido = {
+        sucursal: currentUser,
+        cantidad: qty,
+        pin: currentPin,
+        lote: document.getElementById('ui-lote').innerText
+      };
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(pedido) });
+        const result = await response.json();
+        if (result.status === "success") {
+          alert("¡Pedido enviado con éxito!");
+          document.getElementById('order-qty').value = '';
+          tabPedidos('historial');
+        } else {
+          alert("Error del servidor: " + result.message);
+        }
+      } catch (error) {
+        alert("Error de red al enviar el pedido.");
+      } finally {
+        btn.disabled = false; 
+        btn.innerHTML = 'Confirmar Pedido';
+      }
+    }
+
+    // ==========================================
+    // EJECUTAR ARRANQUE
+    // ==========================================
+    window.onload = initApp;
+  </script>
+</body>
+</html>
