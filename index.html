@@ -224,18 +224,14 @@
     </div>
   </nav>
 
-  <script>
-    // ==========================================
-    // 1. VARIABLES GLOBALES (¡REEMPLAZA TU URL AQUÍ!)
-    // ==========================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec'; // <--- PEGA LA URL DEL SCRIPT AQUÍ
+ <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec';
     const MASTER_ADMIN_PIN = "Admin2026";
     let radarChartInstance = null;
     let roastChartInstance = null;
     let currentUser = null;
     let currentPin = null;
 
-    // --- LISTA DE SUCURSALES ---
     const sucursalesWorkCafe = [
       "Buin - Paseo Buin", "Huechuraba - El Parque", "Independencia - Barrio Independencia",
       "La Reina - Príncipe de Gales", "La Reina - Avenida Ossa", "Las Condes - Alcántara",
@@ -253,14 +249,12 @@
       const selectElement = document.getElementById('auth-sucursal');
       sucursalesWorkCafe.sort().forEach(sucursal => {
         const option = document.createElement('option');
-        option.value = sucursal; option.textContent = sucursal;
+        option.value = sucursal; 
+        option.textContent = sucursal;
         selectElement.appendChild(option);
       });
     }
 
-    // ==========================================
-    // 2. NAVEGACIÓN PRINCIPAL
-    // ==========================================
     function showSection(sectionId) {
       document.querySelectorAll('.section-transition').forEach(s => s.classList.add('hidden'));
       document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active'); n.classList.add('text-gray-600', 'text-gray-400'); });
@@ -276,9 +270,6 @@
       document.getElementById('section-title').innerText = titles[sectionId];
     }
 
-    // ==========================================
-    // 3. CARGA DE DATOS AL INICIAR (DASHBOARD)
-    // ==========================================
     async function initApp() {
       cargarSucursales(); 
 
@@ -288,52 +279,60 @@
         
         if(data.error) throw new Error(data.error);
 
-        // UI General
-        document.getElementById('ui-lote').innerText = data.lote;
-        document.getElementById('ui-fecha').innerText = data.fecha;
-        document.getElementById('ui-sca').innerText = data.sca_total;
+        document.getElementById('ui-lote').innerText = data.lote || '--';
+        document.getElementById('ui-fecha').innerText = data.fecha || '--';
+        document.getElementById('ui-sca').innerText = data.sca_total || '--';
         
-        // Tags de Notas
         const notasDiv = document.getElementById('ui-notas-tags');
         notasDiv.innerHTML = '';
         if(data.review && data.review.notas) {
             data.review.notas.split(',').forEach(nota => {
-            const span = document.createElement('span'); span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold shadow-sm'; span.innerText = nota.trim(); notasDiv.appendChild(span);
+              const span = document.createElement('span'); 
+              span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold shadow-sm'; 
+              span.innerText = nota.trim(); 
+              notasDiv.appendChild(span);
             });
         }
-        document.getElementById('ui-resena').innerText = `"${data.review.texto}"`;
+        if(data.review && data.review.texto) {
+          document.getElementById('ui-resena').innerText = `"${data.review.texto}"`;
+        }
 
-        // UI Físico
-        document.getElementById('ui-humedad').innerText = data.fisico.humedad + '%';
-        document.getElementById('ui-densidad').innerText = data.fisico.densidad;
-        document.getElementById('ui-defectos').innerText = data.fisico.defectos;
-        document.getElementById('ui-m17').innerText = `(${data.fisico.malla17}%)`; document.getElementById('bar-m17').style.height = data.fisico.malla17 + '%';
-        document.getElementById('ui-m16').innerText = `(${data.fisico.malla16}%)`; document.getElementById('bar-m16').style.height = data.fisico.malla16 + '%';
-        document.getElementById('ui-m15').innerText = `(${data.fisico.malla15}%)`; document.getElementById('bar-m15').style.height = data.fisico.malla15 + '%';
+        if(data.fisico) {
+          document.getElementById('ui-humedad').innerText = (data.fisico.humedad || '--') + '%';
+          document.getElementById('ui-densidad').innerText = data.fisico.densidad || '--';
+          document.getElementById('ui-defectos').innerText = data.fisico.defectos || '--';
+          document.getElementById('ui-m17').innerText = `(${data.fisico.malla17 || 0}%)`; 
+          document.getElementById('bar-m17').style.height = (data.fisico.malla17 || 0) + '%';
+          document.getElementById('ui-m16').innerText = `(${data.fisico.malla16 || 0}%)`; 
+          document.getElementById('bar-m16').style.height = (data.fisico.malla16 || 0) + '%';
+          document.getElementById('ui-m15').innerText = `(${data.fisico.malla15 || 0}%)`; 
+          document.getElementById('bar-m15').style.height = (data.fisico.malla15 || 0) + '%';
+        }
 
-        // UI Trazabilidad
-        document.getElementById('ui-productor').innerText = data.trazabilidad.productor;
-        document.getElementById('ui-origen').innerText = data.trazabilidad.origen;
-        document.getElementById('ui-region').innerText = data.trazabilidad.region;
-        document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud;
-        document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad;
-        document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso;
+        if(data.trazabilidad) {
+          document.getElementById('ui-productor').innerText = data.trazabilidad.productor || '--';
+          document.getElementById('ui-origen').innerText = data.trazabilidad.origen || '--';
+          document.getElementById('ui-region').innerText = data.trazabilidad.region || '--';
+          document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud || '--';
+          document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad || '--';
+          document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso || '--';
+        }
 
-        // UI Tueste
-        document.getElementById('ui-agtron').innerText = data.roasting.agtron;
-        document.getElementById('ui-perfil').innerText = data.roasting.perfil;
-        renderRoastChart(data.roasting.curva);
+        if(data.roasting) {
+          document.getElementById('ui-agtron').innerText = data.roasting.agtron || '--';
+          document.getElementById('ui-perfil').innerText = data.roasting.perfil || '--';
+          renderRoastChart(data.roasting.curva);
+        }
 
-        // UI Historia
-        document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad.productor}`;
-        if(data.historia.foto_finca) document.getElementById('img-finca').src = data.historia.foto_finca;
-        if(data.historia.foto_productor) document.getElementById('img-productor').src = data.historia.foto_productor;
-        document.getElementById('ui-historia-texto').innerText = data.historia.texto;
+        if(data.historia) {
+          document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad?.productor || ''}`;
+          if(data.historia.foto_finca) document.getElementById('img-finca').src = data.historia.foto_finca;
+          if(data.historia.foto_productor) document.getElementById('img-productor').src = data.historia.foto_productor;
+          document.getElementById('ui-historia-texto').innerText = data.historia.texto || '';
+        }
 
-        // Gráfica Radar
-        renderRadarChart(data.sensorial);
+        if(data.sensorial) renderRadarChart(data.sensorial);
 
-        // Cambiar Badge de Estado a Verde
         document.getElementById('status-text').innerText = 'Sincronizado';
         document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-green-500');
         document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-green-100');
@@ -348,13 +347,27 @@
       }
     }
 
-    // ==========================================
-    // 4. LÓGICA DE GRÁFICOS (CHART.JS)
-    // ==========================================
     function renderRadarChart(sensorialData) {
       const ctx = document.getElementById('radarChart').getContext('2d');
       if(radarChartInstance) radarChartInstance.destroy();
-      radarChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, ticks: { min: 6, max: 10, stepSize: 1, display: false } } } } });
+      radarChartInstance = new Chart(ctx, { 
+        type: 'radar', 
+        data: { 
+          labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], 
+          datasets: [{ 
+            data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], 
+            backgroundColor: 'rgba(220, 38, 38, 0.2)', 
+            borderColor: 'rgba(220, 38, 38, 1)', 
+            borderWidth: 2 
+          }] 
+        }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } }, 
+          scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, ticks: { min: 6, max: 10, stepSize: 1, display: false } } } 
+        } 
+      });
     }
 
     function renderRoastChart(curvaString) {
@@ -363,12 +376,21 @@
       if(roastChartInstance) roastChartInstance.destroy();
       const temps = curvaString.toString().split(',').map(n => parseFloat(n.trim()));
       const labels = temps.map((_, i) => `${i}m`);
-      roastChartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Temperatura (°C)', data: temps, borderColor: '#b45309', backgroundColor: 'rgba(180, 83, 9, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#b45309' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { title: { display: true, text: 'Temperatura °C' } }, x: { title: { display: true, text: 'Tiempo (Minutos)' } } } } });
+      roastChartInstance = new Chart(ctx, { 
+        type: 'line', 
+        data: { 
+          labels: labels, 
+          datasets: [{ label: 'Temperatura (°C)', data: temps, borderColor: '#b45309', backgroundColor: 'rgba(180, 83, 9, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#b45309' }] 
+        }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } }, 
+          scales: { y: { title: { display: true, text: 'Temperatura °C' } }, x: { title: { display: true, text: 'Tiempo (Minutos)' } } } 
+        } 
+      });
     }
 
-    // ==========================================
-    // 5. SISTEMA DE PEDIDOS (LOGIN E HISTORIAL)
-    // ==========================================
     function loginPedidos() {
       const suc = document.getElementById('auth-sucursal').value;
       const pin = document.getElementById('auth-pin').value;
@@ -395,7 +417,6 @@
       document.getElementById('tab-nuevo').classList.toggle('hidden', tab !== 'nuevo');
       document.getElementById('tab-historial').classList.toggle('hidden', tab !== 'historial');
       
-      // Estilos de botones
       if(tab === 'nuevo') {
         document.getElementById('tab-btn-nuevo').classList.replace('text-gray-500', 'text-gray-800');
         document.getElementById('tab-btn-nuevo').classList.add('bg-white', 'shadow-sm');
@@ -441,7 +462,9 @@
           `;
           container.appendChild(card);
         });
-      } catch(e) { container.innerHTML = '<p class="text-center text-red-500 w-full col-span-full">Error al cargar historial</p>'; }
+      } catch(e) { 
+        container.innerHTML = '<p class="text-center text-red-500 w-full col-span-full">Error al cargar historial</p>'; 
+      }
     }
 
     async function enviarPedido() {
@@ -477,9 +500,6 @@
       }
     }
 
-    // ==========================================
-    // EJECUTAR ARRANQUE
-    // ==========================================
     window.onload = initApp;
   </script>
 </body>
