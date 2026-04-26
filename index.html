@@ -175,9 +175,9 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Sucursal</label>
-               <select id="form-sucursal" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none">
-  <option value="">Seleccionar Sucursal...</option>
-  </select>
+                <select id="form-sucursal" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none">
+                  <option value="">Seleccionar Sucursal...</option>
+                  </select>
               </div>
 
               <div>
@@ -222,9 +222,34 @@
 
   <script>
     // --- VARIABLES GLOBALES ---
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec'; // <-- ¡Reemplaza esto!
+    const APPS_SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI'; // <--- ¡Reemplaza con tu URL!
     let radarChartInstance = null;
     let roastChartInstance = null;
+
+    // --- LISTA DE SUCURSALES ---
+    const sucursalesWorkCafe = [
+      "Buin - Paseo Buin", "Huechuraba - El Parque", "Independencia - Barrio Independencia",
+      "La Reina - Príncipe de Gales", "La Reina - Avenida Ossa", "Las Condes - Alcántara",
+      "Las Condes - MUT Mercado Urbano Tobalaba", "Las Condes - Titanium", "Las Condes - Plaza Perú",
+      "Las Condes - Parque Araucano", "Las Condes - Escuela Militar", "Las Condes - Isidora Goyenechea",
+      "Lo Barnechea - Portal La Dehesa", "Macul - Campus San Joaquín", "Maipú - Nueva Maipú",
+      "Ñuñoa - Dublé Almeyda", "Ñuñoa - Irarrázaval", "Providencia - Barrio Italia",
+      "Providencia - Pedro de Valdivia", "Providencia - Manuel Montt", "Pudahuel - Aeropuerto Internacional",
+      "San Bernardo - Plaza Sur", "Santiago - Universidad Católica", "Santiago - Bellas Artes",
+      "Santiago - Plaza de Armas", "Santiago - Huérfanos", "Santiago - Casa Matriz / Principal",
+      "Vitacura - Alonso de Córdova", "Vitacura - Nueva Costanera", "Vitacura - Candelaria Goyenechea"
+      // Se pueden agregar las demás sucursales regionales siguiendo este formato.
+    ];
+
+    function cargarSucursales() {
+      const selectElement = document.getElementById('form-sucursal');
+      sucursalesWorkCafe.sort().forEach(sucursal => {
+        const option = document.createElement('option');
+        option.value = sucursal;
+        option.textContent = sucursal;
+        selectElement.appendChild(option);
+      });
+    }
 
     // --- LÓGICA DE NAVEGACIÓN ---
     function showSection(sectionId) {
@@ -244,6 +269,8 @@
 
     // --- INICIALIZACIÓN Y CARGA DE DATOS ---
     async function initApp() {
+      cargarSucursales(); // Carga el Select
+
       try {
         const response = await fetch(APPS_SCRIPT_URL);
         const data = await response.json();
@@ -258,7 +285,7 @@
         const notasDiv = document.getElementById('ui-notas-tags');
         notasDiv.innerHTML = '';
         data.review.notas.split(',').forEach(nota => {
-          const span = document.createElement('span'); span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold'; span.innerText = nota.trim(); notasDiv.appendChild(span);
+          const span = document.createElement('span'); span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold shadow-sm'; span.innerText = nota.trim(); notasDiv.appendChild(span);
         });
         document.getElementById('ui-resena').innerText = `"${data.review.texto}"`;
 
@@ -311,7 +338,7 @@
     function renderRadarChart(sensorialData) {
       const ctx = document.getElementById('radarChart').getContext('2d');
       if(radarChartInstance) radarChartInstance.destroy();
-      radarChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+      radarChartInstance = new Chart(ctx, { type: 'radar', data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, ticks: { min: 6, max: 10, stepSize: 1, display: false } } } } });
     }
 
     function renderRoastChart(curvaString) {
