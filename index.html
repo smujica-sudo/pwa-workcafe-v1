@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work Café PWA | Gestión de Pedidos</title>
+  <title>Work Café PWA | Control de Calidad y Pedidos</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .font-serif { font-family: 'Merriweather', serif; }
     .nav-active { color: #dc2626; border-right: 4px solid #dc2626; background: #fef2f2; }
     @media (max-width: 768px) { .nav-active { border-right: none; border-top: 4px solid #dc2626; } }
+    .section-transition { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .glass-card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 1.5rem; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .status-badge { padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
@@ -21,70 +26,184 @@
 </head>
 <body class="overflow-hidden h-screen flex flex-col md:flex-row text-gray-800">
 
-  <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 z-20 shadow-lg">
-    <div class="p-6 border-b border-gray-100"><h1 class="text-2xl font-bold text-red-700">Work Café</h1></div>
+  <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 z-20 shadow-lg">
+    <div class="p-6 border-b border-gray-100">
+      <h1 class="text-2xl font-bold text-red-700 tracking-tight">Work Café</h1>
+      <p class="text-xs font-semibold text-gray-400 mt-1 uppercase tracking-widest">Quality Control</p>
+    </div>
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-      <button onclick="showSection('landing')" class="nav-item nav-active w-full flex items-center p-3 rounded-xl font-medium" id="btn-landing"><span class="material-symbols-rounded mr-3">home</span> Inicio</button>
-      <button onclick="showSection('sensorial')" class="nav-item w-full flex items-center p-3 rounded-xl font-medium" id="btn-sensorial"><span class="material-symbols-rounded mr-3">local_cafe</span> Sensorial</button>
-      <button onclick="showSection('tostado')" class="nav-item w-full flex items-center p-3 rounded-xl font-medium" id="btn-tostado"><span class="material-symbols-rounded mr-3">show_chart</span> Tueste</button>
-      <button onclick="showSection('historia')" class="nav-item w-full flex items-center p-3 rounded-xl font-medium" id="btn-historia"><span class="material-symbols-rounded mr-3">menu_book</span> Historia</button>
-      <hr class="my-4">
-      <button onclick="showSection('pedidos')" class="nav-item w-full flex items-center p-3 rounded-xl font-bold" id="btn-pedidos"><span class="material-symbols-rounded mr-3 text-red-600">shopping_cart</span> Pedidos</button>
+      <button onclick="showSection('landing')" class="nav-item nav-active w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-landing">
+        <span class="material-symbols-rounded mr-3">home</span> Resumen
+      </button>
+      <button onclick="showSection('sensorial')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-sensorial">
+        <span class="material-symbols-rounded mr-3">local_cafe</span> Sensorial
+      </button>
+      <button onclick="showSection('fisico')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-fisico">
+        <span class="material-symbols-rounded mr-3">science</span> Físico
+      </button>
+      <button onclick="showSection('trazabilidad')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-trazabilidad">
+        <span class="material-symbols-rounded mr-3">map</span> Origen
+      </button>
+      <button onclick="showSection('tostado')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-tostado">
+        <span class="material-symbols-rounded mr-3">show_chart</span> Tueste
+      </button>
+      <button onclick="showSection('historia')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-historia">
+        <span class="material-symbols-rounded mr-3">menu_book</span> Historia
+      </button>
+      <hr class="my-4 border-gray-200">
+      <button onclick="showSection('pedidos')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-bold" id="btn-pedidos">
+        <span class="material-symbols-rounded mr-3 text-red-600">shopping_cart</span> Pedidos
+      </button>
     </nav>
   </aside>
 
-  <main class="flex-1 flex flex-col h-full overflow-y-auto bg-gray-50">
-    <header class="h-16 bg-white/80 backdrop-blur-md border-b flex items-center justify-between px-6 sticky top-0 z-10">
-      <h2 id="section-title" class="text-lg font-bold">Resumen</h2>
-      <div id="status-badge" class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full flex items-center font-semibold">
-        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Sincronizado
+  <main class="flex-1 flex flex-col h-full overflow-y-auto relative bg-gray-50">
+    <header class="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
+      <h2 id="section-title" class="text-lg font-bold text-gray-800">Resumen del Lote</h2>
+      <div id="status-badge" class="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full flex items-center font-semibold transition-colors duration-300">
+        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse" id="status-dot"></span> <span id="status-text">Cargando...</span>
       </div>
     </header>
 
-    <div id="content-area" class="p-4 md:p-8 space-y-6 max-w-5xl mx-auto w-full pb-24">
+    <div id="content-area" class="p-4 md:p-8 space-y-6 max-w-5xl mx-auto w-full pb-24 md:pb-8">
       
-      <section id="section-landing" class="section-transition">
-        <div class="p-8 bg-red-700 rounded-[2rem] text-white shadow-xl">
-          <h2 class="text-3xl font-bold mb-2" id="ui-lote">Cargando...</h2>
-          <div class="mt-4 flex items-baseline"><span class="text-6xl font-bold" id="ui-sca">--</span><span class="ml-2 text-xl opacity-80">Pts SCA</span></div>
+      <section id="section-landing" class="section-transition space-y-6">
+         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 p-8 bg-gradient-to-br from-red-700 to-red-900 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+             <div class="relative z-10">
+               <h3 class="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Lote Actual</h3>
+               <h2 class="text-3xl font-bold mb-2" id="ui-lote">Cargando datos...</h2>
+               <p class="opacity-90 flex items-center"><span class="material-symbols-rounded text-sm mr-1">calendar_today</span> <span id="ui-fecha">--/--/----</span></p>
+               <div class="mt-8 flex items-baseline">
+                  <span class="text-7xl font-bold tracking-tighter" id="ui-sca">--</span>
+                  <span class="ml-2 text-xl font-semibold opacity-80">Pts SCA</span>
+               </div>
+             </div>
+          </div>
+          <div class="glass-card flex flex-col justify-center">
+             <h3 class="font-bold text-gray-800 mb-4 flex items-center"><span class="material-symbols-rounded mr-2 text-red-600">star</span>Notas de Cata</h3>
+             <div id="ui-notas-tags" class="flex flex-wrap gap-2 mb-4"></div>
+             <p id="ui-resena" class="text-gray-600 text-sm italic leading-relaxed border-t pt-4">...</p>
+          </div>
         </div>
       </section>
 
-      <section id="section-sensorial" class="hidden section-transition"><div class="glass-card"><canvas id="radarChart"></canvas></div></section>
-      <section id="section-tostado" class="hidden section-transition"><div class="glass-card"><canvas id="roastChart"></canvas></div></section>
-      <section id="section-historia" class="hidden section-transition"><div class="glass-card" id="ui-historia-texto">...</div></section>
+      <section id="section-sensorial" class="hidden section-transition">
+        <div class="glass-card">
+           <h3 class="font-bold text-xl mb-6 text-center text-gray-800">Perfil Sensorial</h3>
+           <div class="relative w-full max-w-lg mx-auto" style="aspect-ratio: 1/1;"><canvas id="radarChart"></canvas></div>
+        </div>
+      </section>
+
+      <section id="section-fisico" class="hidden section-transition grid grid-cols-1 md:grid-cols-3 gap-6">
+         <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-blue-500 mb-2">water_drop</span><p class="text-3xl font-bold mt-2" id="ui-humedad">--%</p></div>
+         <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-purple-500 mb-2">scale</span><p class="text-3xl font-bold mt-2" id="ui-densidad">-- <span class="text-lg">g/L</span></p></div>
+         <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-orange-500 mb-2">bug_report</span><p class="text-xl font-bold mt-2" id="ui-defectos">--</p></div>
+         <div class="glass-card md:col-span-3">
+          <h4 class="text-sm text-gray-500 uppercase font-bold tracking-wider mb-4">Análisis de Mallas</h4>
+          <div class="flex justify-around items-end h-32">
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m17" class="bg-gray-800 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M17 <span id="ui-m17" class="text-xs font-normal">--%</span></p>
+            </div>
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m16" class="bg-gray-600 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M16 <span id="ui-m16" class="text-xs font-normal">--%</span></p>
+            </div>
+            <div class="flex flex-col items-center w-1/3">
+              <div id="bar-m15" class="bg-gray-400 w-12 rounded-t-lg transition-all duration-1000" style="height: 0%;"></div>
+              <p class="mt-2 font-bold text-gray-700">M15 <span id="ui-m15" class="text-xs font-normal">--%</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-trazabilidad" class="hidden section-transition">
+        <div class="glass-card">
+          <ul class="divide-y divide-gray-100">
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Productor</span><span class="font-bold text-right" id="ui-productor">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Origen</span><span class="font-bold text-right" id="ui-origen">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-right" id="ui-region">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Altitud</span><span class="font-bold text-right" id="ui-altitud">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Variedad</span><span class="font-bold text-right" id="ui-variedad">--</span></li>
+            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Proceso</span><span class="font-bold text-right" id="ui-proceso">--</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="section-tostado" class="hidden section-transition space-y-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="glass-card bg-stone-800 text-white border-none">
+            <h4 class="text-xs uppercase tracking-wider opacity-70">Color Agtron</h4>
+            <p class="text-2xl font-bold mt-1" id="ui-agtron">--</p>
+          </div>
+          <div class="glass-card bg-amber-700 text-white border-none">
+            <h4 class="text-xs uppercase tracking-wider opacity-70">Perfil</h4>
+            <p class="text-2xl font-bold mt-1" id="ui-perfil">--</p>
+          </div>
+        </div>
+        <div class="glass-card">
+           <h3 class="font-bold text-xl mb-4 text-gray-800">Curva de Temperatura vs Tiempo</h3>
+           <div class="relative w-full h-64 md:h-80"><canvas id="roastChart"></canvas></div>
+        </div>
+      </section>
+
+      <section id="section-historia" class="hidden section-transition">
+        <div class="glass-card overflow-hidden p-0">
+          <div class="relative h-64 bg-gray-200">
+            <img id="img-finca" src="" alt="Finca" class="w-full h-full object-cover bg-gray-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+              <h2 class="text-3xl font-bold text-white font-serif" id="ui-story-title">Historia del Origen</h2>
+            </div>
+          </div>
+          <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+            <div class="md:w-1/3 flex justify-center md:justify-start">
+              <img id="img-productor" src="" alt="Productor" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover -mt-20 relative z-10 bg-gray-200">
+            </div>
+            <div class="md:w-2/3">
+              <p id="ui-historia-texto" class="text-gray-700 leading-relaxed font-serif text-lg text-justify">Cargando historia...</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section id="section-pedidos" class="hidden section-transition space-y-6">
         
         <div id="pedidos-auth" class="glass-card max-w-md mx-auto text-center">
-          <h3 class="font-bold text-xl mb-4">Acceso a Pedidos</h3>
-          <select id="auth-sucursal" class="w-full p-3 mb-3 bg-gray-50 border rounded-xl">
+          <h3 class="font-bold text-xl mb-4 text-gray-800">Acceso a Pedidos</h3>
+          <select id="auth-sucursal" class="w-full p-3 mb-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none">
             <option value="Admin">Administrador (Master)</option>
             </select>
-          <input type="password" id="auth-pin" placeholder="Ingresa PIN" class="w-full p-3 mb-4 bg-gray-50 border rounded-xl text-center">
-          <button onclick="loginPedidos()" class="w-full bg-black text-white p-4 rounded-xl font-bold">Entrar</button>
+          <input type="password" id="auth-pin" placeholder="Ingresa tu PIN" class="w-full p-3 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-center focus:ring-2 focus:ring-red-500 outline-none">
+          <button onclick="loginPedidos()" class="w-full bg-black text-white p-4 rounded-xl font-bold hover:bg-gray-800 transition-colors">Entrar</button>
         </div>
 
         <div id="pedidos-panel" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h3 class="text-2xl font-bold" id="panel-welcome">Panel</h3>
-            <button onclick="logoutPedidos()" class="text-sm text-red-600 font-bold">Cerrar Sesión</button>
+          <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800" id="panel-welcome">Panel</h3>
+            <button onclick="logoutPedidos()" class="text-sm text-red-600 font-bold hover:underline">Cerrar Sesión</button>
           </div>
 
           <div class="flex space-x-2 bg-gray-200 p-1 rounded-xl">
-            <button onclick="tabPedidos('nuevo')" id="tab-btn-nuevo" class="flex-1 py-2 rounded-lg font-bold bg-white shadow-sm">Nuevo Pedido</button>
-            <button onclick="tabPedidos('historial')" id="tab-btn-historial" class="flex-1 py-2 rounded-lg font-bold text-gray-500">Historial</button>
+            <button onclick="tabPedidos('nuevo')" id="tab-btn-nuevo" class="flex-1 py-2 rounded-lg font-bold bg-white text-gray-800 shadow-sm transition-all">Nuevo Pedido</button>
+            <button onclick="tabPedidos('historial')" id="tab-btn-historial" class="flex-1 py-2 rounded-lg font-bold text-gray-500 hover:text-gray-700 transition-all">Historial</button>
           </div>
 
-          <div id="tab-nuevo" class="glass-card">
+          <div id="tab-nuevo" class="glass-card max-w-md mx-auto w-full">
             <div class="space-y-4">
-              <input type="number" id="order-qty" placeholder="Cantidad de bolsas (1kg)" class="w-full p-4 bg-gray-50 border rounded-xl">
-              <button onclick="enviarPedido()" id="btn-send" class="w-full bg-red-600 text-white p-4 rounded-xl font-bold">Confirmar Pedido</button>
+              <h4 class="font-bold text-gray-800 text-center mb-4">Solicitar Lote Actual</h4>
+              <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cantidad (Bolsas 1kg)</label>
+                <input type="number" id="order-qty" placeholder="Ej: 10" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500">
+              </div>
+              <button onclick="enviarPedido()" id="btn-send" class="w-full bg-red-600 text-white p-4 rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200 flex justify-center items-center">
+                Confirmar Pedido
+              </button>
             </div>
           </div>
 
           <div id="tab-historial" class="hidden space-y-4">
-            <div id="lista-pedidos" class="space-y-3">
+            <div id="lista-pedidos" class="space-y-3 grid grid-cols-1 md:grid-cols-2 gap-4">
               </div>
           </div>
         </div>
@@ -93,102 +212,112 @@
     </div>
   </main>
 
+  <nav class="md:hidden fixed bottom-0 w-full flex overflow-x-auto bg-white/90 backdrop-blur-lg border-t border-gray-200 pb-safe z-50 hide-scrollbar shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+    <div class="flex px-2 py-2 min-w-max space-x-1">
+      <button onclick="showSection('landing')" class="nav-item flex flex-col items-center p-2 text-gray-400 nav-active rounded-xl min-w-[70px]" id="btn-landing-mob"><span class="material-symbols-rounded">home</span><span class="text-[10px] font-medium mt-1">Inicio</span></button>
+      <button onclick="showSection('sensorial')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-sensorial-mob"><span class="material-symbols-rounded">local_cafe</span><span class="text-[10px] font-medium mt-1">Cata</span></button>
+      <button onclick="showSection('fisico')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-fisico-mob"><span class="material-symbols-rounded">science</span><span class="text-[10px] font-medium mt-1">Físico</span></button>
+      <button onclick="showSection('trazabilidad')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-trazabilidad-mob"><span class="material-symbols-rounded">map</span><span class="text-[10px] font-medium mt-1">Origen</span></button>
+      <button onclick="showSection('tostado')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-tostado-mob"><span class="material-symbols-rounded">show_chart</span><span class="text-[10px] font-medium mt-1">Tueste</span></button>
+      <button onclick="showSection('historia')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-historia-mob"><span class="material-symbols-rounded">menu_book</span><span class="text-[10px] font-medium mt-1">Historia</span></button>
+      <button onclick="showSection('pedidos')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-pedidos-mob"><span class="material-symbols-rounded text-red-500">shopping_cart</span><span class="text-[10px] font-medium mt-1 text-red-500">Pedidos</span></button>
+    </div>
+  </nav>
+
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec'; 
+    // ==========================================
+    // 1. VARIABLES GLOBALES (¡REEMPLAZA TU URL AQUÍ!)
+    // ==========================================
+    const APPS_SCRIPT_URL = 'TU_NUEVA_URL_DE_APPS_SCRIPT_AQUI'; // <--- PEGA LA URL DEL SCRIPT AQUÍ
     const MASTER_ADMIN_PIN = "Admin2026";
+    let radarChartInstance = null;
+    let roastChartInstance = null;
     let currentUser = null;
     let currentPin = null;
 
-    // --- NAVEGACIÓN ---
-    function showSection(id) {
+    // --- LISTA DE SUCURSALES ---
+    const sucursalesWorkCafe = [
+      "Buin - Paseo Buin", "Huechuraba - El Parque", "Independencia - Barrio Independencia",
+      "La Reina - Príncipe de Gales", "La Reina - Avenida Ossa", "Las Condes - Alcántara",
+      "Las Condes - MUT Mercado Urbano Tobalaba", "Las Condes - Titanium", "Las Condes - Plaza Perú",
+      "Las Condes - Parque Araucano", "Las Condes - Escuela Militar", "Las Condes - Isidora Goyenechea",
+      "Lo Barnechea - Portal La Dehesa", "Macul - Campus San Joaquín", "Maipú - Nueva Maipú",
+      "Ñuñoa - Dublé Almeyda", "Ñuñoa - Irarrázaval", "Providencia - Barrio Italia",
+      "Providencia - Pedro de Valdivia", "Providencia - Manuel Montt", "Pudahuel - Aeropuerto Internacional",
+      "San Bernardo - Plaza Sur", "Santiago - Universidad Católica", "Santiago - Bellas Artes",
+      "Santiago - Plaza de Armas", "Santiago - Huérfanos", "Santiago - Casa Matriz / Principal",
+      "Vitacura - Alonso de Córdova", "Vitacura - Nueva Costanera", "Vitacura - Candelaria Goyenechea"
+    ];
+
+    function cargarSucursales() {
+      const selectElement = document.getElementById('auth-sucursal');
+      sucursalesWorkCafe.sort().forEach(sucursal => {
+        const option = document.createElement('option');
+        option.value = sucursal; option.textContent = sucursal;
+        selectElement.appendChild(option);
+      });
+    }
+
+    // ==========================================
+    // 2. NAVEGACIÓN PRINCIPAL
+    // ==========================================
+    function showSection(sectionId) {
       document.querySelectorAll('.section-transition').forEach(s => s.classList.add('hidden'));
-      document.getElementById('section-' + id).classList.remove('hidden');
-    }
-
-    function tabPedidos(tab) {
-      document.getElementById('tab-nuevo').classList.toggle('hidden', tab !== 'nuevo');
-      document.getElementById('tab-historial').classList.toggle('hidden', tab !== 'historial');
-      if(tab === 'historial') cargarHistorial();
-    }
-
-    // --- LÓGICA DE AUTH ---
-    function loginPedidos() {
-      const suc = document.getElementById('auth-sucursal').value;
-      const pin = document.getElementById('auth-pin').value;
+      document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active'); n.classList.add('text-gray-600', 'text-gray-400'); });
       
-      // Validación básica
-      if(pin === MASTER_ADMIN_PIN || pin === "2026") {
-        currentUser = suc;
-        currentPin = pin;
-        document.getElementById('pedidos-auth').classList.add('hidden');
-        document.getElementById('pedidos-panel').classList.remove('hidden');
-        document.getElementById('panel-welcome').innerText = (pin === MASTER_ADMIN_PIN) ? "Panel Admin" : "Sucursal: " + suc;
-      } else {
-        alert("PIN Incorrecto");
-      }
-    }
-
-    function logoutPedidos() {
-      currentUser = null; currentPin = null;
-      document.getElementById('pedidos-auth').classList.remove('hidden');
-      document.getElementById('pedidos-panel').classList.add('hidden');
-    }
-
-    // --- OBTENER HISTORIAL ---
-    async function cargarHistorial() {
-      const container = document.getElementById('lista-pedidos');
-      container.innerHTML = '<p class="text-center animate-pulse">Cargando historial...</p>';
+      document.getElementById('section-' + sectionId).classList.remove('hidden');
       
+      const btnDesk = document.getElementById('btn-' + sectionId);
+      const btnMob = document.getElementById('btn-' + sectionId + '-mob');
+      if(btnDesk) { btnDesk.classList.add('nav-active'); btnDesk.classList.remove('text-gray-600'); }
+      if(btnMob) { btnMob.classList.add('nav-active'); btnMob.classList.remove('text-gray-400'); }
+      
+      const titles = { landing: 'Resumen', sensorial: 'Análisis Sensorial', fisico: 'Análisis Físico', trazabilidad: 'Trazabilidad', tostado: 'Parámetros de Tueste', historia: 'Nuestra Historia', pedidos: 'Gestión de Pedidos' };
+      document.getElementById('section-title').innerText = titles[sectionId];
+    }
+
+    // ==========================================
+    // 3. CARGA DE DATOS AL INICIAR (DASHBOARD)
+    // ==========================================
+    async function initApp() {
+      cargarSucursales(); 
+
       try {
-        const url = `${APPS_SCRIPT_URL}?action=getOrders&sucursal=${currentUser}&pin=${currentPin}`;
-        const res = await fetch(url);
-        const data = await res.json();
+        const response = await fetch(APPS_SCRIPT_URL);
+        const data = await response.json();
         
-        container.innerHTML = '';
-        data.forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'glass-card border-l-4 ' + (p.estado === 'Pendiente' ? 'border-yellow-400' : 'border-green-500');
-          card.innerHTML = `
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase">${p.fecha}</p>
-                <h4 class="font-bold text-gray-800">${p.sucursal}</h4>
-                <p class="text-sm text-gray-600">${p.cantidad} Bolsas - Lote: ${p.lote}</p>
-              </div>
-              <span class="status-badge ${p.estado === 'Pendiente' ? 'status-pendiente' : 'status-entregado'}">${p.estado}</span>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      } catch(e) { container.innerHTML = 'Error al cargar'; }
-    }
+        if(data.error) throw new Error(data.error);
 
-    // --- ENVIAR PEDIDO ---
-    async function enviarPedido() {
-      const qty = document.getElementById('order-qty').value;
-      if(!qty) return alert("Ingresa cantidad");
-      
-      const btn = document.getElementById('btn-send');
-      btn.disabled = true; btn.innerText = "Enviando...";
+        // UI General
+        document.getElementById('ui-lote').innerText = data.lote;
+        document.getElementById('ui-fecha').innerText = data.fecha;
+        document.getElementById('ui-sca').innerText = data.sca_total;
+        
+        // Tags de Notas
+        const notasDiv = document.getElementById('ui-notas-tags');
+        notasDiv.innerHTML = '';
+        if(data.review && data.review.notas) {
+            data.review.notas.split(',').forEach(nota => {
+            const span = document.createElement('span'); span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold shadow-sm'; span.innerText = nota.trim(); notasDiv.appendChild(span);
+            });
+        }
+        document.getElementById('ui-resena').innerText = `"${data.review.texto}"`;
 
-      const pedido = {
-        sucursal: currentUser,
-        cantidad: qty,
-        pin: currentPin,
-        lote: document.getElementById('ui-lote').innerText
-      };
+        // UI Físico
+        document.getElementById('ui-humedad').innerText = data.fisico.humedad + '%';
+        document.getElementById('ui-densidad').innerText = data.fisico.densidad;
+        document.getElementById('ui-defectos').innerText = data.fisico.defectos;
+        document.getElementById('ui-m17').innerText = `(${data.fisico.malla17}%)`; document.getElementById('bar-m17').style.height = data.fisico.malla17 + '%';
+        document.getElementById('ui-m16').innerText = `(${data.fisico.malla16}%)`; document.getElementById('bar-m16').style.height = data.fisico.malla16 + '%';
+        document.getElementById('ui-m15').innerText = `(${data.fisico.malla15}%)`; document.getElementById('bar-m15').style.height = data.fisico.malla15 + '%';
 
-      await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(pedido) });
-      alert("¡Pedido enviado con éxito!");
-      document.getElementById('order-qty').value = '';
-      tabPedidos('historial');
-      btn.disabled = false; btn.innerText = "Confirmar Pedido";
-    }
+        // UI Trazabilidad
+        document.getElementById('ui-productor').innerText = data.trazabilidad.productor;
+        document.getElementById('ui-origen').innerText = data.trazabilidad.origen;
+        document.getElementById('ui-region').innerText = data.trazabilidad.region;
+        document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud;
+        document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad;
+        document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso;
 
-    // --- INICIO ---
-    window.onload = () => {
-      // (Aquí va la misma lógica de cargarSucursales() e initApp() de la V2 anterior)
-    };
-  </script>
-</body>
-</html>
+        // UI Tueste
+        document.getElementById('ui-agtron').innerText = data.roasting.
