@@ -318,20 +318,42 @@
           document.getElementById('ui-historia-texto').innerText = data.historia.texto || '';
         }
 
-        if(data.sensorial) renderRadarChart(data.sensorial);
-
-        document.getElementById('status-text').innerText = 'Sincronizado';
-        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-green-500');
-        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-green-100');
-        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-green-700');
-
-      } catch (error) { 
-        console.error(error);
-        document.getElementById('status-text').innerText = 'Error de Conexión';
-        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-red-500');
-        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-red-100');
-        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-red-700');
-      }
+        function renderRadarChart(sensorialData) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if(radarChartInstance) radarChartInstance.destroy();
+      radarChartInstance = new Chart(ctx, { 
+        type: 'radar', 
+        data: { 
+          labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], 
+          datasets: [{ 
+            data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], 
+            backgroundColor: 'rgba(220, 38, 38, 0.2)', 
+            borderColor: 'rgba(220, 38, 38, 1)', 
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(220, 38, 38, 1)'
+          }] 
+        }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } }, 
+          scales: { 
+            r: { 
+              min: 4,  // <-- LÍMITE INFERIOR CORRECTAMENTE DECLARADO
+              max: 10, // <-- LÍMITE SUPERIOR CORRECTAMENTE DECLARADO
+              angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, 
+              grid: { color: 'rgba(0, 0, 0, 0.1)' }, 
+              pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, 
+              ticks: { 
+                stepSize: 1, 
+                display: true, // Lo cambiamos a true para que se vean los números
+                backdropColor: 'transparent', // Fondo transparente para los números
+                color: '#9ca3af' // Color gris suave para que no compita con la gráfica
+              } 
+            } 
+          } 
+        } 
+      });
     }
 
     // --- NUEVO PIE CHART DE MALLAS ---
