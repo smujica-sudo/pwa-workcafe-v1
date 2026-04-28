@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work Café PWA | Control de Calidad y Pedidos</title>
+  <title>Work Café PWA | Control de Calidad y BI</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,11 +35,13 @@
       <button onclick="showSection('landing')" class="nav-item nav-active w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-landing"><span class="material-symbols-rounded mr-3">home</span> Resumen</button>
       <button onclick="showSection('sensorial')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-sensorial"><span class="material-symbols-rounded mr-3">local_cafe</span> Sensorial</button>
       <button onclick="showSection('fisico')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-fisico"><span class="material-symbols-rounded mr-3">science</span> Físico</button>
-      <button onclick="showSection('trazabilidad')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-trazabilidad"><span class="material-symbols-rounded mr-3">map</span> Origen</button>
       <button onclick="showSection('tostado')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-tostado"><span class="material-symbols-rounded mr-3">show_chart</span> Tueste</button>
       <button onclick="showSection('historia')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium" id="btn-historia"><span class="material-symbols-rounded mr-3">menu_book</span> Historia</button>
       <hr class="my-4 border-gray-200">
       <button onclick="showSection('pedidos')" class="nav-item w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-bold" id="btn-pedidos"><span class="material-symbols-rounded mr-3 text-red-600">shopping_cart</span> Pedidos</button>
+      <button onclick="showSection('reportes')" class="nav-item hidden w-full flex items-center p-3 text-gray-600 rounded-xl hover:bg-gray-50 transition font-bold" id="btn-reportes">
+        <span class="material-symbols-rounded mr-3 text-blue-600">analytics</span> BI & Reportes
+      </button>
     </nav>
   </aside>
 
@@ -58,7 +60,7 @@
           <div class="md:col-span-2 p-8 bg-gradient-to-br from-red-700 to-red-900 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
              <div class="relative z-10">
                <h3 class="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Lote Actual</h3>
-               <h2 class="text-3xl font-bold mb-2" id="ui-lote">Cargando datos...</h2>
+               <h2 class="text-3xl font-bold mb-2" id="ui-lote">Cargando...</h2>
                <p class="opacity-90 flex items-center"><span class="material-symbols-rounded text-sm mr-1">calendar_today</span> <span id="ui-fecha">--/--/----</span></p>
                <div class="mt-8 flex items-baseline">
                   <span class="text-7xl font-bold tracking-tighter" id="ui-sca">--</span>
@@ -69,14 +71,14 @@
           <div class="glass-card flex flex-col justify-center">
              <h3 class="font-bold text-gray-800 mb-3 flex items-center"><span class="material-symbols-rounded mr-2 text-red-600">coffee_maker</span>Perfil de Taza</h3>
              <div id="ui-notas-tags" class="flex flex-wrap gap-2 mb-3"></div>
-             <p id="ui-resena" class="text-gray-600 text-sm leading-relaxed border-t pt-3 text-justify line-clamp-5"></p>
+             <p id="ui-resena" class="text-gray-600 text-sm leading-relaxed border-t pt-3 text-justify line-clamp-5">Cargando descripción del perfil...</p>
           </div>
         </div>
       </section>
 
       <section id="section-sensorial" class="hidden section-transition">
         <div class="glass-card">
-           <h3 class="font-bold text-xl mb-6 text-center text-gray-800">Perfil Sensorial</h3>
+           <h3 class="font-bold text-xl mb-6 text-center text-gray-800">Perfil Sensorial (SCA)</h3>
            <div class="relative w-full max-w-lg mx-auto" style="aspect-ratio: 1/1;"><canvas id="radarChart"></canvas></div>
         </div>
       </section>
@@ -85,105 +87,64 @@
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-blue-500 mb-2">water_drop</span><p class="text-3xl font-bold mt-2" id="ui-humedad">--%</p></div>
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-purple-500 mb-2">scale</span><p class="text-3xl font-bold mt-2" id="ui-densidad">-- <span class="text-lg">g/L</span></p></div>
          <div class="glass-card text-center"><span class="material-symbols-rounded text-4xl text-orange-500 mb-2">bug_report</span><p class="text-xl font-bold mt-2" id="ui-defectos">--</p></div>
-         
          <div class="glass-card md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h4 class="text-sm text-gray-500 uppercase font-bold tracking-wider mb-4 text-center">Distribución de Mallas</h4>
               <div class="relative w-full h-48"><canvas id="mallasPieChart"></canvas></div>
             </div>
-            <div class="flex flex-col justify-center items-center p-6 bg-gray-50 rounded-2xl border border-gray-100 h-full">
+            <div class="flex flex-col justify-center items-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
               <span class="material-symbols-rounded text-5xl text-green-500 mb-2">verified</span>
               <h4 class="text-sm text-gray-500 uppercase font-bold tracking-wider">Resultado del Análisis</h4>
-              <p class="text-3xl font-bold text-green-700 mt-1" id="ui-calidad-resultado">Especialidad</p>
-              <p class="text-xs text-gray-400 mt-3 text-center px-4">Clasificación confirmada según tolerancia de defectos, nivel de humedad óptimo y perfil de retención en mallas.</p>
+              <p class="text-3xl font-bold text-green-700 mt-1">Especialidad</p>
             </div>
          </div>
       </section>
 
-      <section id="section-trazabilidad" class="hidden section-transition">
-        <div class="glass-card">
-          <ul class="divide-y divide-gray-100">
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Productor</span><span class="font-bold text-right" id="ui-productor">--</span></li>
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Origen</span><span class="font-bold text-right" id="ui-origen">--</span></li>
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Región</span><span class="font-bold text-right" id="ui-region">--</span></li>
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Altitud</span><span class="font-bold text-right" id="ui-altitud">--</span></li>
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Variedad</span><span class="font-bold text-right" id="ui-variedad">--</span></li>
-            <li class="py-4 flex justify-between"><span class="font-semibold text-gray-500">Proceso</span><span class="font-bold text-right" id="ui-proceso">--</span></li>
-          </ul>
-        </div>
-      </section>
-
-      <section id="section-tostado" class="hidden section-transition space-y-6">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="glass-card bg-stone-800 text-white border-none">
-            <h4 class="text-xs uppercase tracking-wider opacity-70">Color Agtron</h4>
-            <p class="text-2xl font-bold mt-1" id="ui-agtron">--</p>
-          </div>
-          <div class="glass-card bg-amber-700 text-white border-none">
-            <h4 class="text-xs uppercase tracking-wider opacity-70">Perfil</h4>
-            <p class="text-2xl font-bold mt-1" id="ui-perfil">--</p>
-          </div>
-        </div>
-        <div class="glass-card">
-           <h3 class="font-bold text-xl mb-4 text-gray-800">Curva de Temperatura vs Tiempo</h3>
-           <div class="relative w-full h-64 md:h-80"><canvas id="roastChart"></canvas></div>
-        </div>
-      </section>
-
-      <section id="section-historia" class="hidden section-transition">
-        <div class="glass-card overflow-hidden p-0">
-          <div class="relative h-64 bg-gray-200">
-            <img id="img-finca" src="" alt="Finca" class="w-full h-full object-cover bg-gray-300">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-              <h2 class="text-3xl font-bold text-white font-serif" id="ui-story-title">Historia del Origen</h2>
-            </div>
-          </div>
-          <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
-            <div class="md:w-1/3 flex justify-center md:justify-start">
-              <img id="img-productor" src="" alt="Productor" class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover -mt-20 relative z-10 bg-gray-200">
-            </div>
-            <div class="md:w-2/3">
-              <p id="ui-historia-texto" class="text-gray-700 leading-relaxed font-serif text-lg text-justify">Cargando historia...</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section id="section-tostado" class="hidden section-transition"><div class="glass-card"><canvas id="roastChart"></canvas></div></section>
+      <section id="section-historia" class="hidden section-transition"><div class="glass-card" id="ui-historia-texto">Cargando historia...</div></section>
 
       <section id="section-pedidos" class="hidden section-transition space-y-6">
         <div id="pedidos-auth" class="glass-card max-w-md mx-auto text-center">
-          <h3 class="font-bold text-xl mb-4 text-gray-800">Acceso a Pedidos</h3>
-          <select id="auth-sucursal" class="w-full p-3 mb-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none">
-            <option value="Admin">Administrador (Master)</option>
-          </select>
-          <input type="password" id="auth-pin" placeholder="Ingresa tu PIN" class="w-full p-3 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-center focus:ring-2 focus:ring-red-500 outline-none">
-          <button onclick="loginPedidos()" class="w-full bg-black text-white p-4 rounded-xl font-bold hover:bg-gray-800 transition-colors">Entrar</button>
+          <h3 class="font-bold text-xl mb-4">Acceso a Pedidos</h3>
+          <select id="auth-sucursal" class="w-full p-3 mb-3 bg-gray-50 border rounded-xl"></select>
+          <input type="password" id="auth-pin" placeholder="PIN de Seguridad" class="w-full p-3 mb-4 bg-gray-50 border rounded-xl text-center">
+          <button onclick="loginPedidos()" class="w-full bg-black text-white p-4 rounded-xl font-bold">Entrar</button>
+        </div>
+        <div id="pedidos-panel" class="hidden space-y-4">
+          <div class="flex justify-between items-center"><h3 class="font-bold" id="panel-welcome">Panel</h3><button onclick="logoutPedidos()" class="text-red-600 text-sm">Cerrar</button></div>
+          <div id="tab-nuevo" class="glass-card"><input type="number" id="order-qty" placeholder="Cantidad" class="w-full p-4 bg-gray-50 border rounded-xl mb-4"><button onclick="enviarPedido()" class="w-full bg-red-600 text-white p-4 rounded-xl font-bold">Pedir Café</button></div>
+          <div id="lista-pedidos" class="space-y-3"></div>
+        </div>
+      </section>
+
+      <section id="section-reportes" class="hidden section-transition space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="glass-card text-center bg-blue-600 text-white">
+            <h4 class="text-[10px] uppercase font-bold opacity-80">Total Kilos</h4>
+            <p class="text-2xl font-bold" id="kpi-total-kilos">0</p>
+          </div>
+          <div class="glass-card text-center bg-emerald-600 text-white">
+            <h4 class="text-[10px] uppercase font-bold opacity-80">Sucursales Activas</h4>
+            <p class="text-2xl font-bold" id="kpi-sucursales">0</p>
+          </div>
+          <div class="glass-card text-center bg-amber-500 text-white">
+            <h4 class="text-[10px] uppercase font-bold opacity-80">% Pendientes</h4>
+            <p class="text-2xl font-bold" id="kpi-pendientes">0%</p>
+          </div>
+          <div class="glass-card text-center bg-red-600 text-white">
+            <h4 class="text-[10px] uppercase font-bold opacity-80">Lote Dominante</h4>
+            <p class="text-sm font-bold truncate" id="kpi-lote">--</p>
+          </div>
         </div>
 
-        <div id="pedidos-panel" class="hidden space-y-6">
-          <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800" id="panel-welcome">Panel</h3>
-            <button onclick="logoutPedidos()" class="text-sm text-red-600 font-bold hover:underline">Cerrar Sesión</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass-card">
+            <h4 class="font-bold mb-4 text-gray-700">Consumo por Sucursal (Top 10)</h4>
+            <div class="h-64"><canvas id="chartBI-sucursales"></canvas></div>
           </div>
-          <div class="flex space-x-2 bg-gray-200 p-1 rounded-xl">
-            <button onclick="tabPedidos('nuevo')" id="tab-btn-nuevo" class="flex-1 py-2 rounded-lg font-bold bg-white text-gray-800 shadow-sm transition-all">Nuevo Pedido</button>
-            <button onclick="tabPedidos('historial')" id="tab-btn-historial" class="flex-1 py-2 rounded-lg font-bold text-gray-500 hover:text-gray-700 transition-all">Historial</button>
-          </div>
-
-          <div id="tab-nuevo" class="glass-card max-w-md mx-auto w-full">
-            <div class="space-y-4">
-              <h4 class="font-bold text-gray-800 text-center mb-4">Solicitar Lote Actual</h4>
-              <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cantidad (Bolsas 1kg)</label>
-                <input type="number" id="order-qty" placeholder="Ej: 10" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500">
-              </div>
-              <button onclick="enviarPedido()" id="btn-send" class="w-full bg-red-600 text-white p-4 rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200 flex justify-center items-center">
-                Confirmar Pedido
-              </button>
-            </div>
-          </div>
-
-          <div id="tab-historial" class="hidden space-y-4">
-            <div id="lista-pedidos" class="space-y-3 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          <div class="glass-card">
+            <h4 class="font-bold mb-4 text-gray-700">Tendencia de Pedidos (Últimos 30 días)</h4>
+            <div class="h-64"><canvas id="chartBI-tendencia"></canvas></div>
           </div>
         </div>
       </section>
@@ -193,28 +154,21 @@
 
   <nav class="md:hidden fixed bottom-0 w-full flex overflow-x-auto bg-white/90 backdrop-blur-lg border-t border-gray-200 pb-safe z-50 hide-scrollbar shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
     <div class="flex px-2 py-2 min-w-max space-x-1">
-      <button onclick="showSection('landing')" class="nav-item flex flex-col items-center p-2 text-gray-400 nav-active rounded-xl min-w-[70px]" id="btn-landing-mob"><span class="material-symbols-rounded">home</span><span class="text-[10px] font-medium mt-1">Inicio</span></button>
-      <button onclick="showSection('sensorial')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-sensorial-mob"><span class="material-symbols-rounded">local_cafe</span><span class="text-[10px] font-medium mt-1">Cata</span></button>
-      <button onclick="showSection('fisico')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-fisico-mob"><span class="material-symbols-rounded">science</span><span class="text-[10px] font-medium mt-1">Físico</span></button>
-      <button onclick="showSection('trazabilidad')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-trazabilidad-mob"><span class="material-symbols-rounded">map</span><span class="text-[10px] font-medium mt-1">Origen</span></button>
-      <button onclick="showSection('tostado')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-tostado-mob"><span class="material-symbols-rounded">show_chart</span><span class="text-[10px] font-medium mt-1">Tueste</span></button>
-      <button onclick="showSection('historia')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-historia-mob"><span class="material-symbols-rounded">menu_book</span><span class="text-[10px] font-medium mt-1">Historia</span></button>
-      <button onclick="showSection('pedidos')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-pedidos-mob"><span class="material-symbols-rounded text-red-500">shopping_cart</span><span class="text-[10px] font-medium mt-1 text-red-500">Pedidos</span></button>
+      <button onclick="showSection('landing')" class="nav-item flex flex-col items-center p-2 text-gray-400 nav-active rounded-xl min-w-[70px]" id="btn-landing-mob"><span class="material-symbols-rounded">home</span><span class="text-[10px] font-medium">Inicio</span></button>
+      <button onclick="showSection('pedidos')" class="nav-item flex flex-col items-center p-2 text-gray-400 rounded-xl min-w-[70px]" id="btn-pedidos-mob"><span class="material-symbols-rounded">shopping_cart</span><span class="text-[10px] font-medium">Pedidos</span></button>
+      <button onclick="showSection('reportes')" class="nav-item hidden flex flex-col items-center p-2 text-blue-600 rounded-xl min-w-[70px]" id="btn-reportes-mob"><span class="material-symbols-rounded">analytics</span><span class="text-[10px] font-medium">BI</span></button>
     </div>
   </nav>
 
   <script>
     // ==========================================
-    // 1. URL DE TU APPS SCRIPT
+    // CONFIGURACIÓN (REEMPLAZA TU URL AQUÍ)
     // ==========================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoifrhQsfmpyTM2W-Pvt-4woCnohKsg4MxwfTnZQiHrJFZp8IT95G7YW5RKIpiHxG8Aw/exec'; // <--- ¡Asegúrate de pegar la URL aquí!
+    const APPS_SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI'; 
     const MASTER_ADMIN_PIN = "Admin2026";
     
-    let radarChartInstance = null;
-    let roastChartInstance = null;
-    let pieChartInstance = null;
-    let currentUser = null;
-    let currentPin = null;
+    let radarChartInstance, roastChartInstance, pieChartInstance, biChartSuc, biChartTen;
+    let currentUser, currentPin;
 
     const sucursalesWorkCafe = [
       "Buin - Paseo Buin", "Huechuraba - El Parque", "Independencia - Barrio Independencia",
@@ -231,301 +185,178 @@
 
     function cargarSucursales() {
       const selectElement = document.getElementById('auth-sucursal');
-      sucursalesWorkCafe.sort().forEach(sucursal => {
-        const option = document.createElement('option');
-        option.value = sucursal; option.textContent = sucursal;
-        selectElement.appendChild(option);
+      sucursalesWorkCafe.sort().forEach(s => {
+        const o = document.createElement('option'); o.value = s; o.textContent = s; selectElement.appendChild(o);
       });
     }
 
-    function showSection(sectionId) {
+    function showSection(id) {
       document.querySelectorAll('.section-transition').forEach(s => s.classList.add('hidden'));
-      document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active'); n.classList.add('text-gray-600', 'text-gray-400'); });
-      document.getElementById('section-' + sectionId).classList.remove('hidden');
+      document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active'); n.classList.add('text-gray-400'); });
+      document.getElementById('section-' + id).classList.remove('hidden');
       
-      const btnDesk = document.getElementById('btn-' + sectionId);
-      const btnMob = document.getElementById('btn-' + sectionId + '-mob');
-      if(btnDesk) { btnDesk.classList.add('nav-active'); btnDesk.classList.remove('text-gray-600'); }
-      if(btnMob) { btnMob.classList.add('nav-active'); btnMob.classList.remove('text-gray-400'); }
+      const bD = document.getElementById('btn-' + id);
+      const bM = document.getElementById('btn-' + id + '-mob');
+      if(bD) bD.classList.add('nav-active');
+      if(bM) bM.classList.add('nav-active');
       
-      const titles = { landing: 'Resumen', sensorial: 'Análisis Sensorial', fisico: 'Análisis Físico', trazabilidad: 'Trazabilidad', tostado: 'Parámetros de Tueste', historia: 'Nuestra Historia', pedidos: 'Gestión de Pedidos' };
-      document.getElementById('section-title').innerText = titles[sectionId];
+      if(id === 'reportes') cargarBI();
+      const titles = { landing: 'Resumen', sensorial: 'Análisis Sensorial', fisico: 'Análisis Físico', tostado: 'Tueste', historia: 'Historia', pedidos: 'Pedidos', reportes: 'Business Intelligence' };
+      document.getElementById('section-title').innerText = titles[id];
     }
 
-    async function initApp() {
-      cargarSucursales(); 
+    // --- BI & ANALYTICS ---
+    async function cargarBI() {
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrders&sucursal=Admin&pin=${MASTER_ADMIN_PIN}`);
+        const data = await res.json();
+        
+        // Calcular Métricas
+        const totalKilos = data.reduce((acc, p) => acc + Number(p.cantidad), 0);
+        const sucursalesUnicas = [...new Set(data.map(p => p.sucursal))].length;
+        const pendientes = (data.filter(p => p.estado === 'Pendiente').length / data.length * 100).toFixed(0);
+        
+        document.getElementById('kpi-total-kilos').innerText = totalKilos;
+        document.getElementById('kpi-sucursales').innerText = sucursalesUnicas;
+        document.getElementById('kpi-pendientes').innerText = pendientes + '%';
+        document.getElementById('kpi-lote').innerText = data[0]?.lote || '--';
 
+        // Procesar Gráfico Sucursales (Top 10)
+        const counts = {};
+        data.forEach(p => counts[p.sucursal] = (counts[p.sucursal] || 0) + Number(p.cantidad));
+        const sortedSuc = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        
+        renderBIChartSuc(sortedSuc.map(s => s[0]), sortedSuc.map(s => s[1]));
+        
+        // Procesar Tendencia (Últimos 30 días)
+        const tendencia = {};
+        data.forEach(p => {
+          const d = p.fecha.split(' ')[0];
+          tendencia[d] = (tendencia[d] || 0) + Number(p.cantidad);
+        });
+        const sortedDates = Object.keys(tendencia).sort().slice(-10);
+        renderBIChartTendencia(sortedDates, sortedDates.map(d => tendencia[d]));
+
+      } catch (e) { console.error("BI Error", e); }
+    }
+
+    function renderBIChartSuc(labels, values) {
+      const ctx = document.getElementById('chartBI-sucursales').getContext('2d');
+      if(biChartSuc) biChartSuc.destroy();
+      biChartSuc = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Kilos', data: values, backgroundColor: '#dc2626', borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function renderBIChartTendencia(labels, values) {
+      const ctx = document.getElementById('chartBI-tendencia').getContext('2d');
+      if(biChartTen) biChartTen.destroy();
+      biChartTen = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Kilos', data: values, borderColor: '#2563eb', tension: 0.4, fill: true, backgroundColor: 'rgba(37, 99, 235, 0.1)' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    // --- SISTEMA DE DATOS Y DASHBOARD ---
+    async function initApp() {
+      cargarSucursales();
       try {
         const response = await fetch(APPS_SCRIPT_URL);
         const data = await response.json();
+        document.getElementById('ui-lote').innerText = data.lote;
+        document.getElementById('ui-fecha').innerText = data.fecha;
+        document.getElementById('ui-sca').innerText = data.sca_total;
+        document.getElementById('ui-resena').innerText = data.review.texto;
         
-        if(data.error) throw new Error(data.error);
+        const tags = document.getElementById('ui-notas-tags');
+        tags.innerHTML = '';
+        data.review.notas.split(',').forEach(n => {
+          const s = document.createElement('span'); s.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-[10px] font-bold'; s.innerText = n.trim(); tags.appendChild(s);
+        });
 
-        document.getElementById('ui-lote').innerText = data.lote || '--';
-        document.getElementById('ui-fecha').innerText = data.fecha || '--';
-        document.getElementById('ui-sca').innerText = data.sca_total || '--';
+        document.getElementById('ui-humedad').innerText = data.fisico.humedad + '%';
+        document.getElementById('ui-densidad').innerText = data.fisico.densidad;
+        document.getElementById('ui-defectos').innerText = data.fisico.defectos;
         
-        const notasDiv = document.getElementById('ui-notas-tags');
-        notasDiv.innerHTML = '';
-        if(data.review && data.review.notas) {
-            data.review.notas.split(',').forEach(nota => {
-              const span = document.createElement('span'); 
-              span.className = 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold shadow-sm'; 
-              span.innerText = nota.trim(); 
-              notasDiv.appendChild(span);
-            });
-        }
-        if(data.review && data.review.texto) {
-          document.getElementById('ui-resena').innerText = data.review.texto;
-        }
+        renderRadarChart(data.sensorial);
+        renderPieChart(data.fisico);
+        renderRoastChart(data.roasting.curva);
+        
+        // Trazabilidad
+        document.getElementById('ui-productor').innerText = data.trazabilidad.productor;
+        document.getElementById('ui-origen').innerText = data.trazabilidad.origen;
+        document.getElementById('ui-region').innerText = data.trazabilidad.region;
+        document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud;
+        document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad;
+        document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso;
 
-        if(data.fisico) {
-          document.getElementById('ui-humedad').innerText = (data.fisico.humedad || '--') + '%';
-          document.getElementById('ui-densidad').innerText = data.fisico.densidad || '--';
-          document.getElementById('ui-defectos').innerText = data.fisico.defectos || '--';
-          
-          renderPieChart(data.fisico);
-
-          const esEspecialidad = true; 
-          const resultadoUI = document.getElementById('ui-calidad-resultado');
-          if(esEspecialidad) {
-            resultadoUI.innerText = "Especialidad";
-            resultadoUI.className = "text-3xl font-bold text-green-700 mt-1";
-          } else {
-            resultadoUI.innerText = "Comercial";
-            resultadoUI.className = "text-3xl font-bold text-yellow-600 mt-1";
-          }
-        }
-
-        if(data.trazabilidad) {
-          document.getElementById('ui-productor').innerText = data.trazabilidad.productor || '--';
-          document.getElementById('ui-origen').innerText = data.trazabilidad.origen || '--';
-          document.getElementById('ui-region').innerText = data.trazabilidad.region || '--';
-          document.getElementById('ui-altitud').innerText = data.trazabilidad.altitud || '--';
-          document.getElementById('ui-variedad').innerText = data.trazabilidad.variedad || '--';
-          document.getElementById('ui-proceso').innerText = data.trazabilidad.proceso || '--';
-        }
-
-        if(data.roasting) {
-          document.getElementById('ui-agtron').innerText = data.roasting.agtron || '--';
-          document.getElementById('ui-perfil').innerText = data.roasting.perfil || '--';
-          renderRoastChart(data.roasting.curva);
-        }
-
-        if(data.historia) {
-          document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad?.productor || ''}`;
-          if(data.historia.foto_finca) document.getElementById('img-finca').src = data.historia.foto_finca;
-          if(data.historia.foto_productor) document.getElementById('img-productor').src = data.historia.foto_productor;
-          document.getElementById('ui-historia-texto').innerText = data.historia.texto || '';
-        }
-
-        if(data.sensorial) renderRadarChart(data.sensorial);
+        // Historia
+        document.getElementById('ui-story-title').innerText = `Familia ${data.trazabilidad.productor}`;
+        document.getElementById('img-finca').src = data.historia.foto_finca;
+        document.getElementById('img-productor').src = data.historia.foto_productor;
+        document.getElementById('ui-historia-texto').innerText = data.historia.texto;
 
         document.getElementById('status-text').innerText = 'Sincronizado';
         document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-green-500');
-        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-green-100');
-        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-green-700');
-
-      } catch (error) { 
-        console.error(error);
-        document.getElementById('status-text').innerText = 'Error de Conexión';
-        document.getElementById('status-dot').classList.replace('bg-yellow-500', 'bg-red-500');
-        document.getElementById('status-badge').classList.replace('bg-yellow-100', 'bg-red-100');
-        document.getElementById('status-badge').classList.replace('text-yellow-700', 'text-red-700');
-      }
+      } catch (e) { console.error(e); }
     }
 
-    function renderPieChart(fisico) {
-      const ctx = document.getElementById('mallasPieChart').getContext('2d');
-      if(pieChartInstance) pieChartInstance.destroy();
-      
-      pieChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Malla 17+', 'Malla 16', 'Malla 15'],
-          datasets: [{
-            data: [fisico.malla17 || 0, fisico.malla16 || 0, fisico.malla15 || 0],
-            backgroundColor: ['#1f2937', '#4b5563', '#9ca3af'], 
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { font: { family: 'Inter' } } }
-          }
-        }
-      });
-    }
-
-    function renderRadarChart(sensorialData) {
+    function renderRadarChart(s) {
       const ctx = document.getElementById('radarChart').getContext('2d');
       if(radarChartInstance) radarChartInstance.destroy();
-      radarChartInstance = new Chart(ctx, { 
-        type: 'radar', 
-        data: { 
-          labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], 
-          datasets: [{ 
-            data: [sensorialData.aroma, sensorialData.sabor, sensorialData.residual, sensorialData.acidez, sensorialData.cuerpo, sensorialData.balance, sensorialData.uniformidad], 
-            backgroundColor: 'rgba(220, 38, 38, 0.2)', 
-            borderColor: 'rgba(220, 38, 38, 1)', 
-            borderWidth: 2,
-            pointBackgroundColor: 'rgba(220, 38, 38, 1)'
-          }] 
-        }, 
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false, 
-          plugins: { legend: { display: false } }, 
-          scales: { 
-            r: { 
-              min: 4,  
-              max: 10, 
-              angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, 
-              grid: { color: 'rgba(0, 0, 0, 0.1)' }, 
-              pointLabels: { font: { family: 'Inter', size: 12, weight: 'bold' }, color: '#374151' }, 
-              ticks: { 
-                stepSize: 1, 
-                display: true, 
-                backdropColor: 'transparent', 
-                color: '#9ca3af' 
-              } 
-            } 
-          } 
-        } 
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: { labels: ['Aroma','Sabor','Residual','Acidez','Cuerpo','Balance','Uniformidad'], datasets: [{ data: [s.aroma, s.sabor, s.residual, s.acidez, s.cuerpo, s.balance, s.uniformidad], backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: '#dc2626' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 4, max: 10, ticks: { stepSize: 1, display: true, backdropColor: 'transparent' } } } }
       });
     }
 
-    function renderRoastChart(curvaString) {
-      if(!curvaString) return;
+    function renderPieChart(f) {
+      const ctx = document.getElementById('mallasPieChart').getContext('2d');
+      if(pieChartInstance) pieChartInstance.destroy();
+      pieChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: { labels: ['M17+','M16','M15'], datasets: [{ data: [f.malla17, f.malla16, f.malla15], backgroundColor: ['#1e293b','#475569','#94a3b8'] }] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    function renderRoastChart(c) {
       const ctx = document.getElementById('roastChart').getContext('2d');
       if(roastChartInstance) roastChartInstance.destroy();
-      const temps = curvaString.toString().split(',').map(n => parseFloat(n.trim()));
-      const labels = temps.map((_, i) => `${i}m`);
-      roastChartInstance = new Chart(ctx, { 
-        type: 'line', 
-        data: { 
-          labels: labels, 
-          datasets: [{ label: 'Temperatura (°C)', data: temps, borderColor: '#b45309', backgroundColor: 'rgba(180, 83, 9, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#b45309' }] 
-        }, 
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false, 
-          plugins: { legend: { display: false } }, 
-          scales: { y: { title: { display: true, text: 'Temperatura °C' } }, x: { title: { display: true, text: 'Tiempo (Minutos)' } } } 
-        } 
+      const t = c.toString().split(',').map(n => Number(n.trim()));
+      roastChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels: t.map((_,i)=>i+'m'), datasets: [{ label: 'Temp', data: t, borderColor: '#b45309', tension: 0.4, fill: true }] },
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
 
+    // --- AUTH & LOGIN ---
     function loginPedidos() {
-      const suc = document.getElementById('auth-sucursal').value;
       const pin = document.getElementById('auth-pin').value;
-      
+      const suc = document.getElementById('auth-sucursal').value;
       if(pin === MASTER_ADMIN_PIN || pin === "2026") {
-        currentUser = suc;
-        currentPin = pin;
+        currentUser = suc; currentPin = pin;
         document.getElementById('pedidos-auth').classList.add('hidden');
         document.getElementById('pedidos-panel').classList.remove('hidden');
-        document.getElementById('panel-welcome').innerText = (pin === MASTER_ADMIN_PIN) ? "Panel Admin" : "Sucursal: " + suc;
-        document.getElementById('auth-pin').value = '';
-      } else {
-        alert("PIN Incorrecto");
-      }
+        document.getElementById('panel-welcome').innerText = (pin === MASTER_ADMIN_PIN) ? "Admin Panel" : suc;
+        if(pin === MASTER_ADMIN_PIN) {
+          document.getElementById('btn-reportes').classList.remove('hidden');
+          document.getElementById('btn-reportes-mob').classList.remove('hidden');
+        }
+      } else { alert("PIN Incorrecto"); }
     }
 
     function logoutPedidos() {
       currentUser = null; currentPin = null;
       document.getElementById('pedidos-auth').classList.remove('hidden');
       document.getElementById('pedidos-panel').classList.add('hidden');
-    }
-
-    function tabPedidos(tab) {
-      document.getElementById('tab-nuevo').classList.toggle('hidden', tab !== 'nuevo');
-      document.getElementById('tab-historial').classList.toggle('hidden', tab !== 'historial');
-      
-      if(tab === 'nuevo') {
-        document.getElementById('tab-btn-nuevo').classList.replace('text-gray-500', 'text-gray-800');
-        document.getElementById('tab-btn-nuevo').classList.add('bg-white', 'shadow-sm');
-        document.getElementById('tab-btn-historial').classList.replace('text-gray-800', 'text-gray-500');
-        document.getElementById('tab-btn-historial').classList.remove('bg-white', 'shadow-sm');
-      } else {
-        document.getElementById('tab-btn-historial').classList.replace('text-gray-500', 'text-gray-800');
-        document.getElementById('tab-btn-historial').classList.add('bg-white', 'shadow-sm');
-        document.getElementById('tab-btn-nuevo').classList.replace('text-gray-800', 'text-gray-500');
-        document.getElementById('tab-btn-nuevo').classList.remove('bg-white', 'shadow-sm');
-        cargarHistorial();
-      }
-    }
-
-    async function cargarHistorial() {
-      const container = document.getElementById('lista-pedidos');
-      container.innerHTML = '<p class="text-center text-gray-500 animate-pulse w-full col-span-full">Consultando base de datos...</p>';
-      
-      try {
-        const url = `${APPS_SCRIPT_URL}?action=getOrders&sucursal=${encodeURIComponent(currentUser)}&pin=${currentPin}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        
-        container.innerHTML = '';
-        if(data.length === 0) {
-            container.innerHTML = '<p class="text-center text-gray-500 w-full col-span-full">No hay pedidos registrados.</p>';
-            return;
-        }
-
-        data.forEach(p => {
-          const card = document.createElement('div');
-          card.className = 'glass-card border-l-4 ' + (p.estado === 'Pendiente' ? 'border-yellow-400' : 'border-green-500');
-          card.innerHTML = `
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase">${p.fecha}</p>
-                <h4 class="font-bold text-gray-800 mt-1">${p.sucursal}</h4>
-                <p class="text-sm text-gray-600 mt-1"><span class="font-bold text-red-600">${p.cantidad}</span> Bolsas</p>
-                <p class="text-xs text-gray-400 mt-1">Lote: ${p.lote}</p>
-              </div>
-              <span class="status-badge ${p.estado === 'Pendiente' ? 'status-pendiente' : 'status-entregado'} mt-1">${p.estado}</span>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      } catch(e) { 
-        container.innerHTML = '<p class="text-center text-red-500 w-full col-span-full">Error al cargar historial</p>'; 
-      }
-    }
-
-    async function enviarPedido() {
-      const qty = document.getElementById('order-qty').value;
-      if(!qty || qty <= 0) return alert("Ingresa una cantidad válida.");
-      
-      const btn = document.getElementById('btn-send');
-      btn.disabled = true; 
-      btn.innerHTML = '<span class="animate-spin material-symbols-rounded mr-2">sync</span> Enviando...';
-
-      const pedido = {
-        sucursal: currentUser,
-        cantidad: qty,
-        pin: currentPin,
-        lote: document.getElementById('ui-lote').innerText
-      };
-
-      try {
-        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(pedido) });
-        const result = await response.json();
-        if (result.status === "success") {
-          alert("¡Pedido enviado con éxito!");
-          document.getElementById('order-qty').value = '';
-          tabPedidos('historial');
-        } else {
-          alert("Error del servidor: " + result.message);
-        }
-      } catch (error) {
-        alert("Error de red al enviar el pedido.");
-      } finally {
-        btn.disabled = false; 
-        btn.innerHTML = 'Confirmar Pedido';
-      }
+      document.getElementById('btn-reportes').classList.add('hidden');
+      document.getElementById('btn-reportes-mob').classList.add('hidden');
     }
 
     window.onload = initApp;
